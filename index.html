@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Vesper — Answers before you finish asking (Sample project)</title>
+<meta name="description" content="Sample concept project: a 3D landing page for a fictional product, built as a portfolio piece.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..700&family=Instrument+Sans:wght@400..600&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#f7f4ff; --bg-2:#ece6ff; --surface:#ffffff; --ink:#1b1238; --muted:#5b5183;
+  --line:rgba(70,40,150,.16); --accent:#6d3df0; --accent-soft:rgba(109,61,240,.10); --hot:#d6249f;
+  --nav-bg:rgba(247,244,255,.82);
+  --font-display:"Bricolage Grotesque","Avenir Next","Helvetica Neue",Arial,sans-serif;
+  --font-body:"Instrument Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme: dark;
+    --bg:#0b0719; --bg-2:#130b2c; --surface:#170f35; --ink:#f0ebff; --muted:#a9a1cd;
+    --line:rgba(180,160,255,.16); --accent:#a78bfa; --accent-soft:rgba(167,139,250,.14); --hot:#f472d0;
+    --nav-bg:rgba(11,7,25,.8);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#0b0719; --bg-2:#130b2c; --surface:#170f35; --ink:#f0ebff; --muted:#a9a1cd;
+  --line:rgba(180,160,255,.16); --accent:#a78bfa; --accent-soft:rgba(167,139,250,.14); --hot:#f472d0;
+  --nav-bg:rgba(11,7,25,.8);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+section[id]{scroll-margin-top:72px}
+
+/* ---------- Buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 22px;border-radius:999px;font-weight:600;font-size:.95rem;text-decoration:none;transition:transform .2s,background .2s,border-color .2s;cursor:pointer;border:1px solid transparent;font-family:inherit}
+.btn:hover{transform:translateY(-1px)}
+.btn.primary{background:#6d3df0;color:#fff;box-shadow:0 10px 34px rgba(109,61,240,.45)}
+.btn.primary:hover{background:#7c4ff5}
+.btn.ghost{border-color:rgba(196,181,253,.35);color:#f3eeff}
+.btn.ghost:hover{border-color:rgba(196,181,253,.7)}
+
+/* ---------- Nav ---------- */
+.nav{position:fixed;inset:0 0 auto 0;z-index:20;display:flex;align-items:center;gap:32px;height:64px;padding:0 32px;transition:background .3s,border-color .3s,color .3s;border-bottom:1px solid transparent}
+.nav.on-hero{color:#f3eeff}
+.nav.solid{background:var(--nav-bg);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom-color:var(--line);color:var(--ink)}
+.nav.on-hero :focus-visible{outline-color:#c4b5fd}
+.brand{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-display);font-weight:600;font-size:1.25rem;letter-spacing:-.01em;text-decoration:none}
+.nav-links{display:flex;gap:26px;margin-left:16px}
+.nav-links a{text-decoration:none;font-size:.95rem;opacity:.82;transition:opacity .2s}
+.nav-links a:hover{opacity:1}
+.nav-cta{margin-left:auto;background:#6d3df0;color:#fff;padding:9px 18px}
+.nav-cta:hover{background:#7c4ff5}
+
+/* ---------- Hero (always a dark violet stage) ---------- */
+.hero{--h-ink:#f3eeff;--h-muted:#bdb4e0;--h-line:rgba(196,181,253,.24);
+  position:relative;min-height:100vh;min-height:100svh;display:grid;align-items:center;overflow:hidden;color:var(--h-ink);
+  background:radial-gradient(90% 75% at 72% 42%,#2b1260 0%,#140a33 46%,#07040f 100%)}
+.hero :focus-visible{outline-color:#c4b5fd}
+#field{position:absolute;inset:0;width:100%;height:100%;display:block}
+.hero.no-webgl #field{display:none}
+.hero-inner{position:relative;z-index:1;width:min(1240px,100%);margin:0 auto;padding:120px 32px 72px;display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,.98fr);gap:56px;align-items:center}
+.hero h1{font-family:var(--font-display);font-weight:600;font-size:clamp(2.6rem,5.6vw,5.1rem);line-height:1.02;letter-spacing:-.025em;margin:0;text-wrap:balance}
+.lede{font-size:clamp(1.05rem,1.5vw,1.25rem);color:var(--h-muted);max-width:34em;margin:26px 0 0}
+.cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-top:34px}
+.fine{margin:18px 0 0;font-size:.9rem;color:var(--h-muted)}
+
+/* Live session panel */
+.session{background:rgba(22,13,50,.55);border:1px solid var(--h-line);border-radius:20px;-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);box-shadow:0 34px 90px rgba(6,2,22,.6),inset 0 1px 0 rgba(255,255,255,.06);overflow:hidden}
+.s-bar{display:flex;align-items:center;gap:10px;padding:14px 20px;border-bottom:1px solid var(--h-line);font-size:.88rem;color:var(--h-muted)}
+.s-dot{width:8px;height:8px;border-radius:50%;background:#f472d0;animation:ping 2.2s infinite}
+.s-state{margin-left:auto;color:var(--h-ink);font-weight:500}
+.s-body{padding:24px 24px 18px;display:grid;gap:18px;align-content:start;min-height:392px;transition:opacity .45s}
+.s-body.out{opacity:0}
+.s-input{font-size:1.25rem;line-height:1.4;font-weight:500;min-height:2.85em}
+.caret{display:inline-block;width:2px;height:1.1em;background:#f472d0;vertical-align:-.18em;margin-left:2px;animation:blink 1s steps(1) infinite}
+.s-intent{display:flex;align-items:center;gap:14px;padding:11px 16px;border:1px solid var(--h-line);border-radius:12px;font-size:.92rem;opacity:0;transform:translateY(6px);transition:opacity .4s,transform .4s}
+.s-intent.on{opacity:1;transform:none}
+.s-conf{flex:1;height:4px;background:rgba(196,181,253,.18);border-radius:4px;overflow:hidden;min-width:40px}
+.s-conf i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8b5cf6,#f472d0);transition:width 1s cubic-bezier(.2,.7,.2,1)}
+.s-intent b{font-weight:600;min-width:2.6em;text-align:right}
+.s-answer{opacity:0;transition:opacity .4s;display:grid;gap:14px}
+.s-answer.on{opacity:1}
+.s-answer p{margin:0;font-size:1.02rem;line-height:1.6;color:#e7e0ff;min-height:5.2em}
+.w{animation:wIn .35s ease both}
+.spark{width:100%;max-width:280px;height:auto}
+.spark .line{fill:none;stroke:#c4b5fd;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.2s ease}
+.spark .mark{fill:#f472d0;opacity:0;transition:opacity .4s 1s}
+.spark text{fill:#bdb4e0;font-size:10px;opacity:0;transition:opacity .4s 1.1s}
+.spark.on .line{stroke-dashoffset:0}
+.spark.on .mark,.spark.on text{opacity:1}
+.s-sources{display:flex;flex-wrap:wrap;gap:8px;min-height:30px}
+.chip{border:1px solid var(--h-line);border-radius:999px;padding:4px 12px;font-size:.8rem;color:var(--h-muted);animation:wIn .4s ease both}
+.act{border-radius:10px;padding:8px 14px;background:#6d3df0;color:#fff;font-weight:600;font-size:.85rem;animation:wIn .4s ease both}
+.act.sec{background:transparent;border:1px solid var(--h-line);color:var(--h-ink)}
+.s-foot{padding:0 24px 18px;font-size:.84rem;color:var(--h-muted);text-align:right;min-height:1.6em}
+
+@keyframes blink{50%{opacity:0}}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(244,114,208,.55)}70%,100%{box-shadow:0 0 0 10px rgba(244,114,208,0)}}
+@keyframes wIn{from{opacity:0}}
+
+/* ---------- Sections ---------- */
+.sec{padding:clamp(72px,10vw,140px) 32px}
+.sec.alt{background:var(--bg-2)}
+.wrap{max-width:1160px;margin:0 auto}
+h2{font-family:var(--font-display);font-weight:600;font-size:clamp(1.95rem,3.8vw,3.1rem);line-height:1.08;letter-spacing:-.02em;margin:0;text-wrap:balance}
+.sub{color:var(--muted);max-width:34em;margin:18px 0 0}
+
+/* How it works */
+.how{display:grid;grid-template-columns:5fr 7fr;gap:72px;align-items:start}
+.how-lead{position:sticky;top:120px}
+.steps{position:relative;padding-left:60px;display:grid;gap:64px}
+.track{position:absolute;left:19px;top:6px;bottom:6px;width:2px;background:var(--line);border-radius:2px}
+.fill{position:absolute;inset:0;border-radius:2px;background:linear-gradient(var(--accent),var(--hot));transform-origin:top}
+.step{position:relative}
+.step-n{position:absolute;left:-60px;top:-2px;width:40px;height:40px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);display:grid;place-items:center;font-weight:600;font-size:.95rem}
+.step h3{font-family:var(--font-display);font-weight:600;font-size:1.55rem;letter-spacing:-.01em;margin:0 0 8px}
+.step p{margin:0;color:var(--muted);max-width:32em}
+
+/* Features */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:20px;margin-top:56px}
+.t{padding:30px}
+.t h3{font-family:var(--font-display);font-weight:600;font-size:1.4rem;letter-spacing:-.01em;margin:0 0 8px}
+.t p{margin:0;color:var(--muted)}
+.t-try{grid-column:span 7;border-radius:28px;border:1px solid var(--line);background:linear-gradient(150deg,var(--accent-soft),transparent 70%),var(--surface)}
+.t-lat{grid-column:span 5;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.t-code{grid-column:span 5;border-radius:10px;background:#120a2b;color:#e9e3ff;padding:26px}
+.t-code h3{color:#f3eeff}
+.t-code p{color:#b9afe0}
+.t-priv{grid-column:span 7;border-top:1px solid var(--line);border-radius:0;padding-left:4px}
+.try-in{width:100%;margin-top:18px;padding:14px 18px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:1.05rem}
+.try-in::placeholder{color:var(--muted);opacity:.85}
+.try-out{margin-top:18px;display:grid;gap:12px}
+.try-row{display:flex;align-items:center;gap:14px;font-size:.95rem}
+.try-row .k{color:var(--muted);min-width:5.5em}
+.try-conf{flex:1;height:5px;border-radius:5px;background:var(--line);overflow:hidden}
+.try-conf i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--hot));transition:width .35s}
+.try-ans{padding:14px 16px;border-radius:12px;background:var(--bg);border:1px dashed var(--line);color:var(--muted);min-height:4.4em}
+.try-ans.ready{color:var(--ink);border-style:solid}
+.latency{display:grid;gap:18px;margin-top:22px}
+.lat-row{display:grid;gap:8px;font-size:.92rem}
+.lat-row span{display:flex;justify-content:space-between;color:var(--muted)}
+.lat-row span b{color:var(--ink);font-weight:600}
+.bar{height:14px;border-radius:8px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:100%;border-radius:8px;background:var(--muted);opacity:.55;transform-origin:left center}
+.bar.fast i{width:4%;opacity:1;background:linear-gradient(90deg,var(--accent),var(--hot))}
+.note{margin-top:18px;font-size:.82rem;color:var(--muted)}
+pre{margin:20px 0 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.84rem;line-height:1.75;overflow-x:auto;color:#e9e3ff}
+.k1{color:#c4b5fd}.k2{color:#f9a8d4}.k3{color:#8b7fb8}
+.priv-list{list-style:none;margin:22px 0 0;padding:0;display:grid;gap:0}
+.priv-list li{padding:14px 0;border-top:1px solid var(--line);color:var(--ink)}
+.priv-list li:first-child{border-top:0;padding-top:0}
+
+/* FAQ */
+.faq{max-width:760px;margin:48px auto 0}
+details{border-top:1px solid var(--line);padding:22px 0}
+details:last-child{border-bottom:1px solid var(--line)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:24px;font-family:var(--font-display);font-weight:500;font-size:1.2rem}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";color:var(--accent);font-size:1.4rem;line-height:1}
+details[open] summary::after{content:"\2013"}
+details p{margin:12px 0 0;color:var(--muted);max-width:40em}
+
+/* Access */
+.access{border-radius:28px;padding:clamp(34px,6vw,76px);color:#fff;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;background:linear-gradient(135deg,#2e1478,#5b2fd6 65%,#7a35d0)}
+.access .sub{color:#e6dcff}
+.access :focus-visible{outline-color:#fff}
+.join{display:grid;gap:12px}
+.join input{width:100%;padding:15px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.12);color:#fff;font:inherit;font-size:1.02rem}
+.join input::placeholder{color:rgba(255,255,255,.78)}
+.join button{background:#fff;color:#2e1478;font-weight:600;padding:15px 22px;border-radius:12px;border:0;font:inherit;font-weight:600;cursor:pointer}
+.join button:hover{background:#f0e9ff}
+.join-msg{min-height:1.5em;font-size:.95rem;color:#efe8ff;margin:0}
+
+/* Sample project badge */
+.sample-badge{position:fixed;left:16px;bottom:16px;z-index:30;display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(20,12,46,.92);color:#f3eeff;border:1px solid rgba(196,181,253,.4);font-size:.82rem;font-weight:500;line-height:1.2;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);box-shadow:0 8px 28px rgba(6,2,22,.35);pointer-events:none}
+.sample-badge i{width:8px;height:8px;border-radius:50%;background:#f472d0;flex:none}
+.foot-note{flex-basis:100%;margin:0;font-size:.86rem;color:var(--muted)}
+
+/* Footer */
+.foot{padding:40px 32px 56px;border-top:1px solid var(--line)}
+.foot .wrap{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:center;justify-content:space-between;color:var(--muted);font-size:.92rem}
+.foot nav{display:flex;gap:22px}
+.foot a{text-decoration:none}
+.foot a:hover{color:var(--ink)}
+
+@media (max-width:900px){
+  .nav{padding:0 20px;gap:16px}
+  .nav-links{display:none}
+  .hero-inner{grid-template-columns:1fr;padding:104px 22px 56px;gap:40px}
+  .sec{padding-left:22px;padding-right:22px}
+  .how{grid-template-columns:1fr;gap:40px}
+  .how-lead{position:static}
+  .bento{grid-template-columns:1fr}
+  .t-try,.t-lat,.t-code,.t-priv{grid-column:auto}
+  .access{grid-template-columns:1fr;gap:28px}
+  .s-body{min-height:420px}
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<header class="nav on-hero" id="nav">
+  <a class="brand" href="#top" aria-label="Vesper home">
+    <svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="12" r="5.2" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="12" r="5.2" fill="currentColor" opacity=".9"/></svg>
+    Vesper
+  </a>
+  <nav class="nav-links" aria-label="Primary">
+    <a href="#how">How it works</a>
+    <a href="#features">Features</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+  <a class="btn nav-cta" href="#access">Get early access</a>
+</header>
+
+<main>
+<section class="hero" id="top">
+  <canvas id="field" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <h1>Answers arrive before you finish asking.</h1>
+      <p class="lede">Vesper reads intent from the first few keystrokes, so the answer is already on screen when you reach enter.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="#access">Get early access</a>
+        <a class="btn ghost" href="#how">See how it works</a>
+      </div>
+      <p class="fine">Sample project. Vesper is a fictional product.</p>
+    </div>
+
+    <div class="session" role="img" aria-label="Animated example: a person types a question while Vesper predicts what they want and writes the answer before they finish typing.">
+      <div class="s-bar" aria-hidden="true"><span class="s-dot"></span><span>Live session</span><span class="s-state" id="sState">Listening</span></div>
+      <div class="s-body" id="sBody" aria-hidden="true">
+        <div class="s-input"><span id="sTyped"></span><span class="caret"></span></div>
+        <div class="s-intent" id="sIntent"><span id="sIntentLabel"></span><span class="s-conf"><i id="sConfBar"></i></span><b id="sConfNum">0%</b></div>
+        <div class="s-answer" id="sAnswer">
+          <p id="sAnswerText"></p>
+          <svg class="spark" id="sSpark" viewBox="0 0 240 56" hidden>
+            <path class="line" pathLength="1" d="M0 14 L24 12 L48 15 L72 10 L96 13 L120 11 L144 34 L168 40 L192 38 L216 42 L240 41"/>
+            <circle class="mark" cx="144" cy="34" r="4"/>
+            <text x="92" y="52">14:05 deploy</text>
+          </svg>
+          <div class="s-sources" id="sSources"></div>
+        </div>
+      </div>
+      <div class="s-foot" id="sFoot" aria-hidden="true"></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="how">
+  <div class="wrap how">
+    <div class="how-lead">
+      <h2>Three steps, and most of them are invisible.</h2>
+      <p class="sub">Vesper works in the gap between the first word and the last. Here is what happens in that gap.</p>
+    </div>
+    <div class="steps" id="steps">
+      <div class="track" aria-hidden="true"><div class="fill" id="fill"></div></div>
+      <div class="step">
+        <span class="step-n" aria-hidden="true">1</span>
+        <h3>It listens as you type</h3>
+        <p>After a few words, Vesper narrows down what you are after: a metric, a policy, an action. Nothing is sent until it has a guess worth acting on.</p>
+      </div>
+      <div class="step">
+        <span class="step-n" aria-hidden="true">2</span>
+        <h3>It commits when it is sure</h3>
+        <p>Once confidence passes the threshold you set, it starts pulling sources and drafting. Below the threshold, it waits.</p>
+      </div>
+      <div class="step">
+        <span class="step-n" aria-hidden="true">3</span>
+        <h3>It answers in place</h3>
+        <p>The draft is on screen by the time you press enter. If you keep typing and the intent changes, the draft is dropped and Vesper starts over.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec alt" id="features">
+  <div class="wrap">
+    <h2>Built for products where waiting feels wrong.</h2>
+    <p class="sub">Search boxes, support inboxes, command bars, admin consoles. Anywhere a person types and then stares at a spinner.</p>
+
+    <div class="bento">
+      <article class="t t-try">
+        <h3>Try it</h3>
+        <p>Type a few words. Try <em>refund</em>, <em>deploy</em>, <em>invoice</em> or <em>conversion</em>.</p>
+        <input class="try-in" id="tryIn" type="text" autocomplete="off" placeholder="Ask anything about your account" aria-label="Type a question to see Vesper predict your intent">
+        <div class="try-out">
+          <div class="try-row"><span class="k">Intent</span><span id="tryLabel">Waiting for input</span></div>
+          <div class="try-row"><span class="k">Confidence</span><span class="try-conf"><i id="tryBar"></i></span><span id="tryNum">0%</span></div>
+          <div class="try-ans" id="tryAns">The answer appears here as soon as Vesper is sure.</div>
+        </div>
+      </article>
+
+      <article class="t t-lat">
+        <h3>The wait, removed</h3>
+        <p>Time from the last keystroke to a readable answer.</p>
+        <div class="latency" id="latency">
+          <div class="lat-row"><span>Ask, wait, read <b>2.9 s</b></span><div class="bar"><i></i></div></div>
+          <div class="lat-row"><span>With Vesper <b>0.04 s</b></span><div class="bar fast"><i></i></div></div>
+        </div>
+        <p class="note">Illustrative figures from a demo dataset.</p>
+      </article>
+
+      <article class="t t-code">
+        <h3>Drops into your stack</h3>
+        <p>Attach it to any input. You choose the threshold.</p>
+<pre><code><span class="k1">import</span> { Vesper } <span class="k1">from</span> <span class="k2">"@vesper/js"</span>;
+
+<span class="k1">const</span> v = <span class="k1">new</span> Vesper({ key: <span class="k2">"vsp_live_..."</span> });
+
+v.attach(<span class="k2">"#search"</span>, {
+  threshold: <span class="k2">0.85</span>,
+  onReady: (answer) =&gt; render(answer),
+});</code></pre>
+      </article>
+
+      <article class="t t-priv">
+        <h3>Private by default</h3>
+        <p>Predictions run on the sources you connect and nothing else.</p>
+        <ul class="priv-list">
+          <li>Runs in the region you choose.</li>
+          <li>Your data never trains shared models.</li>
+          <li>Every answer links back to its sources.</li>
+        </ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="faq">
+  <div class="wrap">
+    <h2>Questions people ask first</h2>
+    <div class="faq">
+      <details>
+        <summary>What if it guesses wrong?</summary>
+        <p>It only shows an answer when confidence passes the threshold you set. If you keep typing and the intent changes, the draft is discarded and Vesper starts over.</p>
+      </details>
+      <details>
+        <summary>Can I turn prediction off?</summary>
+        <p>Yes. Set the threshold to 1 and Vesper waits for enter before it answers.</p>
+      </details>
+      <details>
+        <summary>Which data can it read?</summary>
+        <p>Only the sources you connect, and only with the permissions of the person asking.</p>
+      </details>
+      <details>
+        <summary>What will it cost?</summary>
+        <p>Early access is free. Pricing will be usage-based and published before general release.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="access" style="padding-top:0">
+  <div class="wrap">
+    <div class="access">
+      <div>
+        <h2>Get early access</h2>
+        <p class="sub">We are onboarding teams in small groups. Leave your email and we will write when your spot opens.</p>
+      </div>
+      <form class="join" id="join" novalidate>
+        <label for="email" style="position:absolute;left:-9999px">Work email</label>
+        <input id="email" name="email" type="email" required placeholder="you@company.com" autocomplete="email">
+        <button type="submit">Join the waitlist</button>
+        <p class="join-msg" id="joinMsg" role="status"></p>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Sample project, 2026</span>
+    <nav aria-label="Footer"><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></nav>
+    <p class="foot-note">This is a sample concept project made for portfolio purposes. Vesper is a fictional product, and the figures, code and features shown are placeholders.</p>
+  </div>
+</footer>
+
+<div class="sample-badge" role="note"><i aria-hidden="true"></i>Sample project &middot; concept design</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script>
+(function () {
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var hero = document.querySelector('.hero');
+  var hasGsap = !!window.gsap;
+  if (hasGsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+
+  /* ================= 3D field ================= */
+  var pulse = 0;
+  window.vesperPulse = function () { pulse = 1; };
+
+  (function initField() {
+    var canvas = document.getElementById('field');
+    if (!window.THREE) { hero.classList.add('no-webgl'); return; }
+    var renderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    } catch (e) { hero.classList.add('no-webgl'); return; }
+
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    renderer.setPixelRatio(dpr);
+    renderer.setClearColor(0x000000, 0);
+
+    var scene = new THREE.Scene();
+    var camera = new THREE.PerspectiveCamera(50, 1, 0.1, 100);
+    camera.position.z = 9;
+    var group = new THREE.Group();
+    scene.add(group);
+
+    var small = window.innerWidth < 700;
+    var N = small ? 2200 : 4200;
+    var shellCount = Math.floor(N * 0.62);
+    var pos = new Float32Array(N * 3), seed = new Float32Array(N), shell = new Float32Array(N);
+    var nodes = [];
+    var golden = Math.PI * (3 - Math.sqrt(5));
+
+    for (var i = 0; i < N; i++) {
+      var x, y, z, s = 0;
+      if (i < shellCount) {
+        var yy = 1 - (i / (shellCount - 1)) * 2;
+        var r = Math.sqrt(1 - yy * yy);
+        var th = golden * i;
+        var R = 2.5 + (Math.random() - 0.5) * 1.1 + Math.sin(yy * 5 + th) * 0.15;
+        x = Math.cos(th) * r * R; y = yy * R; z = Math.sin(th) * r * R; s = 1;
+        if (i % 14 === 0) nodes.push(i);
+      } else {
+        x = (Math.random() - 0.5) * 20; y = (Math.random() - 0.5) * 11; z = (Math.random() - 0.5) * 12 - 1;
+      }
+      pos[i * 3] = x; pos[i * 3 + 1] = y; pos[i * 3 + 2] = z;
+      seed[i] = Math.random(); shell[i] = s;
+    }
+
+    var U = { uTime: { value: reduce ? 3 : 0 }, uPulse: { value: 0 }, uPixel: { value: dpr }, uScale: { value: 1 } };
+
+    var DISP = [
+      'vec3 displace(vec3 p, float seed, float shell, float time, float pulse){',
+      '  float t = time * 0.25 + seed * 6.2831;',
+      '  vec3 n = normalize(p);',
+      '  p += n * (sin(t * 1.7 + p.y * 1.3) * 0.12 * shell + pulse * 0.35 * shell * sin(length(p) * 3.0 - time * 6.0));',
+      '  p.x += sin(t + p.z) * 0.08 * (1.0 - shell);',
+      '  p.y += cos(t * 0.8 + p.x) * 0.08 * (1.0 - shell);',
+      '  return p;',
+      '}'
+    ].join('\n');
+
+    /* Points */
+    var pGeo = new THREE.BufferGeometry();
+    pGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    pGeo.setAttribute('aSeed', new THREE.BufferAttribute(seed, 1));
+    pGeo.setAttribute('aShell', new THREE.BufferAttribute(shell, 1));
+    var pMat = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: [
+        'uniform float uTime; uniform float uPulse; uniform float uPixel; uniform float uScale;',
+        'attribute float aSeed; attribute float aShell;',
+        'varying float vMix; varying float vAlpha;',
+        DISP,
+        'void main(){',
+        '  vec3 p = displace(position, aSeed, aShell, uTime, uPulse);',
+        '  vec4 mv = modelViewMatrix * vec4(p, 1.0);',
+        '  gl_Position = projectionMatrix * mv;',
+        '  float size = (aShell > 0.5 ? 2.3 : 1.5) * (1.0 + uPulse * 0.8 * aShell) * (0.6 + fract(aSeed * 7.0));',
+        '  gl_PointSize = size * uPixel * uScale * (9.0 / -mv.z);',
+        '  vMix = clamp(p.y * 0.18 + 0.5 + sin(uTime * 0.3 + aSeed * 3.0) * 0.1, 0.0, 1.0);',
+        '  vAlpha = mix(0.35, 0.95, aShell);',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform float uPulse; varying float vMix; varying float vAlpha;',
+        'void main(){',
+        '  float d = length(gl_PointCoord - 0.5);',
+        '  float a = pow(smoothstep(0.5, 0.0, d), 1.6);',
+        '  vec3 violet = vec3(0.55, 0.36, 1.0); vec3 pink = vec3(0.96, 0.45, 0.82); vec3 pale = vec3(0.86, 0.80, 1.0);',
+        '  vec3 col = mix(violet, pink, smoothstep(0.55, 1.0, vMix) * 0.55);',
+        '  col = mix(col, pale, uPulse * 0.35);',
+        '  gl_FragColor = vec4(col, a * vAlpha);',
+        '}'
+      ].join('\n')
+    });
+    var points = new THREE.Points(pGeo, pMat);
+    points.frustumCulled = false;
+    group.add(points);
+
+    /* Links between nearest nodes */
+    var lp = [], ls = [], lsh = [];
+    function P(idx) { return [pos[idx * 3], pos[idx * 3 + 1], pos[idx * 3 + 2]]; }
+    for (var a = 0; a < nodes.length; a++) {
+      var A = P(nodes[a]);
+      var best = [];
+      for (var b = 0; b < nodes.length; b++) {
+        if (a === b) continue;
+        var B = P(nodes[b]);
+        var dx = A[0] - B[0], dy = A[1] - B[1], dz = A[2] - B[2];
+        best.push({ b: b, d: dx * dx + dy * dy + dz * dz });
+      }
+      best.sort(function (m, n) { return m.d - n.d; });
+      for (var k = 0; k < 2; k++) {
+        var bi = nodes[best[k].b];
+        var Bp = P(bi);
+        lp.push(A[0], A[1], A[2], Bp[0], Bp[1], Bp[2]);
+        ls.push(seed[nodes[a]], seed[bi]);
+        lsh.push(1, 1);
+      }
+    }
+    var lGeo = new THREE.BufferGeometry();
+    lGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lp), 3));
+    lGeo.setAttribute('aSeed', new THREE.BufferAttribute(new Float32Array(ls), 1));
+    lGeo.setAttribute('aShell', new THREE.BufferAttribute(new Float32Array(lsh), 1));
+    var lMat = new THREE.ShaderMaterial({
+      uniforms: U, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      vertexShader: [
+        'uniform float uTime; uniform float uPulse;',
+        'attribute float aSeed; attribute float aShell;',
+        DISP,
+        'void main(){',
+        '  vec3 p = displace(position, aSeed, aShell, uTime, uPulse);',
+        '  gl_Position = projectionMatrix * modelViewMatrix * vec4(p, 1.0);',
+        '}'
+      ].join('\n'),
+      fragmentShader: [
+        'uniform float uPulse;',
+        'void main(){ gl_FragColor = vec4(0.62, 0.48, 1.0, 0.15 + uPulse * 0.3); }'
+      ].join('\n')
+    });
+    var lines = new THREE.LineSegments(lGeo, lMat);
+    lines.frustumCulled = false;
+    group.add(lines);
+
+    /* Pointer parallax */
+    var mx = 0, my = 0, tx = 0, ty = 0;
+    hero.addEventListener('pointermove', function (e) {
+      var rect = hero.getBoundingClientRect();
+      mx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+      my = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    });
+
+    /* Sizing */
+    function resize() {
+      var w = hero.clientWidth, h = hero.clientHeight;
+      if (!w || !h) return;
+      renderer.setSize(w, h, false);
+      var aspect = w / h;
+      camera.aspect = aspect;
+      camera.position.z = aspect < 1 ? Math.max(9, 6.8 / aspect) : 9;
+      U.uScale.value = camera.position.z / 9;
+      camera.updateProjectionMatrix();
+      if (w < 900) { group.position.set(0, 0, 0); }
+      else { group.position.set(2.6, 0, 0); }
+      if (reduce) renderer.render(scene, camera);
+    }
+    if (window.ResizeObserver) new ResizeObserver(resize).observe(hero);
+    window.addEventListener('resize', resize);
+    resize();
+
+    /* Loop */
+    var clock = new THREE.Clock(), running = false, raf = 0;
+    function frame() {
+      raf = requestAnimationFrame(frame);
+      var dt = Math.min(clock.getDelta(), 0.05);
+      U.uTime.value += dt;
+      pulse = Math.max(0, pulse - dt * 0.85);
+      U.uPulse.value = pulse;
+      tx += (mx - tx) * 0.05; ty += (my - ty) * 0.05;
+      group.rotation.y = U.uTime.value * 0.07 + tx * 0.3;
+      group.rotation.x = ty * 0.18;
+      renderer.render(scene, camera);
+    }
+    var visible = true;
+    function sync() {
+      var should = visible && !document.hidden && !reduce;
+      if (should && !running) { running = true; clock.getDelta(); frame(); }
+      if (!should && running) { running = false; cancelAnimationFrame(raf); }
+    }
+    if (window.IntersectionObserver) {
+      new IntersectionObserver(function (en) { visible = en[0].isIntersecting; sync(); }).observe(hero);
+    }
+    document.addEventListener('visibilitychange', sync);
+    if (reduce) renderer.render(scene, camera); else sync();
+  })();
+
+  /* ================= Live session ================= */
+  var SC = [
+    { q: 'Why did checkout conversion drop on Tuesday', cut: 0.56, intent: 'Explain a metric change', conf: 94,
+      a: 'Mobile Safari checkout conversion fell 11.2% after the 14:05 deploy. The address form now fails silently when autofill is on.',
+      sources: ['Deploy log', 'Funnel: mobile Safari', 'Error trace'], viz: 'spark', lead: '1.3 s' },
+    { q: 'Can I get a refund on the annual plan after 40 days', cut: 0.6, intent: 'Check refund policy', conf: 97,
+      a: 'Annual plans are refundable within 30 days. On day 40 you can cancel and keep access until the term ends, or switch to monthly and receive the unused balance as credit.',
+      sources: ['Billing policy', 'Plan terms'], viz: 'none', lead: '1.8 s' },
+    { q: 'Roll back the last release in eu-west', cut: 0.62, intent: 'Run a release action', conf: 91,
+      a: 'The last release in eu-west is v2.41.3, shipped at 14:05. Rolling back returns the region to v2.41.2 and takes about 40 seconds.',
+      sources: ['Release history'], actions: ['Roll back to v2.41.2', 'Cancel'], viz: 'none', lead: '0.9 s' }
+  ];
+
+  var el = {
+    state: document.getElementById('sState'), body: document.getElementById('sBody'),
+    typed: document.getElementById('sTyped'), intent: document.getElementById('sIntent'),
+    label: document.getElementById('sIntentLabel'), bar: document.getElementById('sConfBar'),
+    num: document.getElementById('sConfNum'), answer: document.getElementById('sAnswer'),
+    text: document.getElementById('sAnswerText'), spark: document.getElementById('sSpark'),
+    sources: document.getElementById('sSources'), foot: document.getElementById('sFoot')
+  };
+
+  var paused = false, started = false;
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  async function wait(ms) {
+    await sleep(ms);
+    while (paused || document.hidden) await sleep(250);
+  }
+  function chip(txt, cls) {
+    var c = document.createElement('span');
+    c.className = cls || 'chip'; c.textContent = txt;
+    el.sources.appendChild(c);
+  }
+  function showIntent(sc) {
+    el.label.textContent = sc.intent;
+    el.intent.classList.add('on');
+    el.bar.style.width = sc.conf + '%';
+    el.num.textContent = sc.conf + '%';
+    el.state.textContent = 'Predicting';
+    window.vesperPulse();
+  }
+  function reset() {
+    el.typed.textContent = ''; el.text.textContent = ''; el.sources.textContent = '';
+    el.intent.classList.remove('on'); el.answer.classList.remove('on');
+    el.bar.style.width = '0%'; el.num.textContent = '0%';
+    el.spark.classList.remove('on'); el.spark.hidden = true;
+    el.foot.textContent = ''; el.state.textContent = 'Listening';
+  }
+  async function streamAnswer(sc) {
+    await wait(450);
+    el.answer.classList.add('on');
+    if (sc.viz === 'spark') {
+      el.spark.hidden = false; void el.spark.getBoundingClientRect(); el.spark.classList.add('on');
+    }
+    var words = sc.a.split(' ');
+    for (var i = 0; i < words.length; i++) {
+      var s = document.createElement('span');
+      s.className = 'w'; s.textContent = words[i] + ' ';
+      el.text.appendChild(s);
+      await wait(32 + Math.random() * 30);
+    }
+    for (var j = 0; j < sc.sources.length; j++) { chip(sc.sources[j]); await wait(120); }
+    if (sc.actions) {
+      for (var k = 0; k < sc.actions.length; k++) { chip(sc.actions[k], 'act' + (k ? ' sec' : '')); await wait(120); }
+    }
+  }
+  async function play(sc) {
+    reset();
+    await wait(800);
+    var cutAt = Math.max(1, Math.floor(sc.q.length * sc.cut));
+    var streaming = null;
+    for (var i = 1; i <= sc.q.length; i++) {
+      el.typed.textContent = sc.q.slice(0, i);
+      if (i === cutAt) { showIntent(sc); streaming = streamAnswer(sc); }
+      await wait(36 + Math.random() * 52);
+    }
+    if (streaming) await streaming;
+    el.state.textContent = 'Answer ready';
+    el.foot.textContent = 'Ready ' + sc.lead + ' before you press enter';
+    await wait(4200);
+    el.body.classList.add('out');
+    await wait(550);
+    reset();
+    el.body.classList.remove('out');
+    await wait(250);
+  }
+  async function loop() {
+    var i = 0;
+    while (true) { await play(SC[i % SC.length]); i++; }
+  }
+  function renderStatic(sc) {
+    el.typed.textContent = sc.q;
+    el.label.textContent = sc.intent; el.intent.classList.add('on');
+    el.bar.style.width = sc.conf + '%'; el.num.textContent = sc.conf + '%';
+    el.answer.classList.add('on'); el.text.textContent = sc.a;
+    if (sc.viz === 'spark') { el.spark.hidden = false; el.spark.classList.add('on'); }
+    sc.sources.forEach(function (s) { chip(s); });
+    el.state.textContent = 'Answer ready';
+    el.foot.textContent = 'Ready ' + sc.lead + ' before you press enter';
+  }
+  function startSession() {
+    if (started) return; started = true;
+    if (reduce) renderStatic(SC[0]); else loop();
+  }
+  if (window.IntersectionObserver) {
+    new IntersectionObserver(function (en) { paused = !en[0].isIntersecting; }, { threshold: 0.05 }).observe(document.querySelector('.session'));
+  }
+
+  /* ================= Hero entrance (one orchestrated moment) ================= */
+  if (hasGsap && !reduce) {
+    var tl = gsap.timeline({ defaults: { ease: 'power3.out' }, onComplete: startSession });
+    tl.from('.hero-copy > *', { y: 28, opacity: 0, duration: 0.85, stagger: 0.12 })
+      .from('.session', { y: 44, opacity: 0, scale: 0.97, duration: 1 }, 0.3);
+    setTimeout(startSession, 3500);
+  } else {
+    startSession();
+  }
+
+  /* ================= Scroll moments ================= */
+  if (hasGsap && window.ScrollTrigger && !reduce) {
+    gsap.set('#fill', { scaleY: 0 });
+    gsap.to('#fill', { scaleY: 1, ease: 'none',
+      scrollTrigger: { trigger: '#steps', start: 'top 65%', end: 'bottom 60%', scrub: true } });
+    gsap.from('#latency .bar i', { scaleX: 0, duration: 1.1, ease: 'power2.out', stagger: 0.18,
+      scrollTrigger: { trigger: '#latency', start: 'top 85%', once: true } });
+  }
+
+  /* ================= Nav state ================= */
+  var nav = document.getElementById('nav');
+  function onScroll() {
+    var past = window.scrollY > hero.offsetHeight - 80;
+    nav.classList.toggle('solid', past);
+    nav.classList.toggle('on-hero', !past);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* ================= Try it ================= */
+  var INTENTS = [
+    { re: /refund|cancel|billing|plan|price/i, label: 'Check refund policy', ans: 'Annual plans are refundable within 30 days. After that you can cancel and keep access until the term ends.' },
+    { re: /deploy|release|roll ?back|ship/i, label: 'Run a release action', ans: 'The latest release is v2.41.3. Rolling back returns the region to v2.41.2 in about 40 seconds.' },
+    { re: /invoice|receipt|payment|charge/i, label: 'Find an invoice', ans: 'Your last invoice was issued on the 1st. I can email a PDF copy to the billing contact.' },
+    { re: /conversion|drop|traffic|metric|revenue/i, label: 'Explain a metric change', ans: 'Checkout conversion fell 11.2% after Tuesday\u2019s deploy, concentrated in mobile Safari.' }
+  ];
+  var tIn = document.getElementById('tryIn'), tLabel = document.getElementById('tryLabel'),
+      tBar = document.getElementById('tryBar'), tNum = document.getElementById('tryNum'), tAns = document.getElementById('tryAns');
+  tIn.addEventListener('input', function () {
+    var v = tIn.value.trim();
+    var conf = 0, label = 'Waiting for input', ans = 'The answer appears here as soon as Vesper is sure.', ready = false;
+    if (v) {
+      var m = null;
+      for (var i = 0; i < INTENTS.length; i++) { if (INTENTS[i].re.test(v)) { m = INTENTS[i]; break; } }
+      if (m) {
+        conf = Math.min(97, 62 + v.length * 2); label = m.label;
+        if (conf >= 80) { ans = m.ans; ready = true; } else { ans = 'Getting close. Keep typing.'; }
+      } else {
+        conf = Math.min(34, v.length * 3); label = 'Still listening'; ans = 'Not sure yet. Keep typing.';
+      }
+    }
+    tLabel.textContent = label; tBar.style.width = conf + '%'; tNum.textContent = conf + '%';
+    tAns.textContent = ans; tAns.classList.toggle('ready', ready);
+  });
+
+  /* ================= Waitlist form (front-end only) ================= */
+  var form = document.getElementById('join'), msg = document.getElementById('joinMsg');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var email = form.email.value.trim();
+    if (!/^\S+@\S+\.\S+$/.test(email)) { msg.textContent = 'Enter a valid email address, like you@company.com.'; return; }
+    msg.textContent = 'This is a sample form, so your email was not saved or sent.';
+    form.reset();
+  });
+})();
+</script>
+</body>
+</html>
